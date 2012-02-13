@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+require 'slop'
+require 'statsd-cli'
+
+begin
+  opts = Slop.parse(:help => true, :strict => true) do
+    banner "statsd -h host -m metric -o operation -v value -s sample_rate\n" + \
+          "example:\n" + \
+          "    statsd -h stats.me.com -o increment -m mongo.rw.ip-42-42-42-42 -v 31"
+
+    on :h, :host=, 'Statsd host'
+    on :m, :metric=, 'Metric to report' 
+    on :o, :operation=, 'Statsd operation: increment, decrement, timing, count'
+    on :v, :value=, 'Metric value'
+    on :s, :sample_rate=, 'Sampling rate (optional)', :optional_argument => true
+  end
+    s = StatsdCLI::Runner.new
+    s.run! opts.to_hash
+rescue => ex
+  puts ex
+  exit!
+end
+
+
